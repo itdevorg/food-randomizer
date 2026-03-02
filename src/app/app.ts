@@ -31,10 +31,17 @@ export class App {
 
   // Modal State
   showModal = signal<boolean>(false);
+  isResultSaved = signal<boolean>(false);
+  previewImageUrl = signal<string | null>(null);
 
-  // Computed property for conic-gradient CSS based on foodList
+  // Holding State
+  isHolding = signal<boolean>(false);
+  private animationFrameId: number | null = null;
+  private lastTime = 0;
+
+  // Computed property for conic-gradient CSS based on foodList and active category
   wheelGradient = computed(() => {
-    const list = this.foodService.foodList();
+    const list = this.foodService.foodList().filter(f => (f.category || 'food') === this.foodService.activeCategory());
     if (list.length === 0) return 'conic-gradient(from 0deg, #ccc 0deg 360deg)';
 
     // Create an array of distinct colors for the wheel
@@ -65,7 +72,9 @@ export class App {
 
   // Group history by date (YYYY-MM-DD or formatted)
   groupedHistory = computed(() => {
-    const list = this.foodService.historyList();
+    // Filter history by the currently active category (defaulting to 'food' if undefined)
+    const list = this.foodService.historyList().filter(h => (h.category || 'food') === this.foodService.activeCategory());
+
     const groups: { date: string, items: typeof list }[] = [];
     const map = new Map<string, typeof list>();
 
@@ -91,6 +100,10 @@ export class App {
     return groups;
   });
 
+  getFoodImage(foodName: string): string | undefined {
+    return this.foodService.foodList().find(f => f.name === foodName)?.image_url;
+  }
+
   setTab(tab: 'wheel' | 'esiimsi' | 'admin' | 'history') {
     if (this.isSpinning() || this.isShaking()) return;
     this.activeTab.set(tab);
@@ -98,16 +111,20 @@ export class App {
     this.showStick.set(false);
   }
 
-  addFood(name: string) {
-    this.foodService.addFood(name);
+  addFood(name: string, category: 'food' | 'drink', imageUrl: string = '') {
+    this.foodService.addFood(name, category, imageUrl);
+  }
+
+  setCategory(category: 'food' | 'drink') {
+    this.foodService.activeCategory.set(category);
   }
 
   startEdit(id: number | string) {
     this.editingId.set(id);
   }
 
-  saveEdit(id: number | string, newName: string) {
-    this.foodService.editFood(id, newName);
+  saveEdit(id: number | string, newName: string, newImageUrl: string = '') {
+    this.foodService.editFood(id, newName, newImageUrl);
     this.editingId.set(null);
   }
 
@@ -121,20 +138,54 @@ export class App {
     }
   }
 
-  spinWheel() {
-    if (this.isSpinning() || this.foodService.foodList().length === 0) return;
+  confirmResult(playerName: string) {
+    const food = this.foodService.currentResult();
+    if (food) {
+      this.foodService.saveHistory(food, playerName || 'ผู้ไม่ประสงค์ออกนาม', this.foodService.activeCategory());
+      this.isResultSaved.set(true);
+    }
+  }
+
+  deleteHistory(id: number | string) {
+    if (confirm('ยืนยันการลบประวัตินี้?')) {
+      this.foodService.deleteHistory(id);
+    }
+  }
+
+  startSpin(e?: Event) {
+    if (e && e.cancelable) e.preventDefault();
+    const typeList = this.foodService.foodList().filter(f => (f.category || 'food') === this.foodService.activeCategory());
+    if (this.isSpinning() || typeList.length === 0) return;
 
     this.isSpinning.set(true);
+    this.isHolding.set(true);
     this.showModal.set(false);
+    this.isResultSaved.set(false);
+
+    this.lastTime = performance.now();
+    const rotate = (time: number) => {
+      const delta = time - this.lastTime;
+      this.lastTime = time;
+      this.wheelRotation.update(v => v + delta * 0.8);
+      this.animationFrameId = requestAnimationFrame(rotate);
+    };
+    this.animationFrameId = requestAnimationFrame(rotate);
+  }
+
+  stopSpin() {
+    if (!this.isHolding()) return;
+    this.isHolding.set(false);
+
+    if (this.animationFrameId) {
+      cancelAnimationFrame(this.animationFrameId);
+      this.animationFrameId = null;
+    }
 
     const rotation = this.foodService.calculateWheelRotation();
-    // Add new rotation to existing rotation to keep spinning forward
+    // Add new rotation to keep spinning forward before stopping
     this.wheelRotation.update(current => current + rotation);
 
-    // In actual logic, need to calculate the actual item picked based on rotation
-    // The previous implementation used pickRandomFood blindly, but we must link it to the wheel position
-    // For visual simplicity in this task, we will just pick randomly and simulate the wheel stops correctly.
-    const result = this.foodService.pickRandomFood();
+    this.foodService.pickRandomFood();
 
     // Wait for spin animation (4s) to finish
     setTimeout(() => {
@@ -144,26 +195,33 @@ export class App {
     }, 4000);
   }
 
-  shakeEsiimsi() {
-    if (this.isShaking() || this.foodService.foodList().length === 0) return;
+  startShake(e?: Event) {
+    if (e && e.cancelable) e.preventDefault();
+    const list = this.foodService.foodList().filter(f => (f.category || 'food') === this.foodService.activeCategory());
+    if (this.isShaking() || list.length === 0) return;
 
     this.isShaking.set(true);
+    this.isHolding.set(true);
     this.showStick.set(false);
     this.showModal.set(false);
+    this.isResultSaved.set(false);
+  }
 
-    // Shake for 1.5 seconds
+  stopShake() {
+    if (!this.isHolding()) return;
+    this.isHolding.set(false);
+
+    // Let it shake a fraction longer
     setTimeout(() => {
       this.isShaking.set(false);
-      const result = this.foodService.pickRandomFood();
+      this.foodService.pickRandomFood();
       this.showStick.set(true);
 
-      // Show modal shortly after stick appears
       setTimeout(() => {
         this.showModal.set(true);
         this.triggerConfetti();
-      }, 800);
-
-    }, 1500);
+      }, 150);
+    }, 300);
   }
 
   triggerConfetti() {
@@ -178,7 +236,7 @@ export class App {
   openGoogleMaps() {
     const food = this.foodService.currentResult();
     if (food) {
-      const query = encodeURIComponent(`ร้าน ${food} ใกล้ฉัน`);
+      const query = encodeURIComponent(`ร้าน ${food.name} ใกล้ฉัน`);
       window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
     }
   }

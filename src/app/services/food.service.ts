@@ -4,11 +4,15 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 export interface FoodItem {
     id: number | string;
     name: string;
+    category?: string; // 'food' | 'drink'
+    image_url?: string;
 }
 
 export interface HistoryItem {
     id: number | string;
     food_name: string;
+    player_name?: string;
+    category?: string;
     created_at: string;
 }
 
@@ -20,7 +24,8 @@ export class FoodService {
 
     readonly foodList = signal<FoodItem[]>([]);
     readonly historyList = signal<HistoryItem[]>([]);
-    readonly currentResult = signal<string | null>(null);
+    readonly currentResult = signal<FoodItem | null>(null);
+    readonly activeCategory = signal<'food' | 'drink'>('food');
 
     constructor() {
         this.supabase = createClient(
@@ -42,11 +47,11 @@ export class FoodService {
             // Fallback mock data if table doesn't exist or error fetching
             if (this.foodList().length === 0) {
                 this.foodList.set([
-                    { id: 1, name: 'กะเพรา' },
-                    { id: 2, name: 'ส้มตำ' },
-                    { id: 3, name: 'ชาบู' },
-                    { id: 4, name: 'ราเมง' },
-                    { id: 5, name: 'ข้าวมันไก่' }
+                    { id: 1, name: 'กะเพรา', image_url: 'https://placehold.co/400x400/FF5722/FFF?text=%E0%B8%81%E0%B8%B0%E0%B9%80%E0%B8%9E%E0%B8%A3%E0%B8%B2' },
+                    { id: 2, name: 'ส้มตำ', image_url: 'https://placehold.co/400x400/4CAF50/FFF?text=%E0%B8%AA%E0%B9%89%E0%B8%A1%E0%B8%95%E0%B8%B3' },
+                    { id: 3, name: 'ชาบู', image_url: 'https://placehold.co/400x400/F44336/FFF?text=%E0%B8%8A%E0%B8%B2%E0%B8%9A%E0%B8%B9' },
+                    { id: 4, name: 'ราเมง', image_url: 'https://placehold.co/400x400/FFC107/FFF?text=%E0%B8%A3%E0%B8%B2%E0%B9%80%E0%B8%A1%E0%B8%87' },
+                    { id: 5, name: 'ข้าวมันไก่', image_url: 'https://placehold.co/400x400/9C27B0/FFF?text=%E0%B8%82%E0%B9%89%E0%B8%B2%E0%B8%A7%E0%B8%A1%E0%B8%B1%E0%B8%99%E0%B9%84%E0%B8%81%E0%B9%88' }
                 ]);
             }
         } else if (data) {
@@ -67,10 +72,10 @@ export class FoodService {
         }
     }
 
-    async saveHistory(foodName: string) {
+    async saveHistory(food: FoodItem, playerName: string = 'ผู้ไม่ประสงค์ออกนาม', category: string = 'food') {
         const { error } = await this.supabase
             .from('history')
-            .insert([{ food_name: foodName }]);
+            .insert([{ food_name: food.name, player_name: playerName, category }]);
 
         if (error) {
             console.error('Error saving history:', error);
@@ -80,16 +85,32 @@ export class FoodService {
         }
     }
 
-    async addFood(name: string): Promise<void> {
+    async deleteHistory(id: number | string) {
+        // Optimistic update
+        const backup = this.historyList();
+        this.historyList.update(list => list.filter(h => h.id !== id));
+
+        const { error } = await this.supabase
+            .from('history')
+            .delete()
+            .eq('id', id);
+
+        if (error) {
+            console.error('Error deleting history:', error);
+            this.historyList.set(backup);
+        }
+    }
+
+    async addFood(name: string, category: 'food' | 'drink' = 'food', imageUrl: string = ''): Promise<void> {
         if (!name || name.trim() === '') return;
 
         // Optimistic UI Update placeholder
         const tempId = 'temp-' + Date.now();
-        this.foodList.update(list => [...list, { id: tempId, name: name.trim() }]);
+        this.foodList.update(list => [...list, { id: tempId, name: name.trim(), category, image_url: imageUrl.trim() }]);
 
         const { data, error } = await this.supabase
             .from('foods')
-            .insert([{ name: name.trim() }])
+            .insert([{ name: name.trim(), category, image_url: imageUrl.trim() }])
             .select();
 
         if (error) {
@@ -102,17 +123,17 @@ export class FoodService {
         }
     }
 
-    async editFood(id: number | string, newName: string): Promise<void> {
+    async editFood(id: number | string, newName: string, newImageUrl: string = ''): Promise<void> {
         if (!newName || newName.trim() === '') return;
 
         // Optimistic update
-        this.foodList.update(list => list.map(f => f.id === id ? { ...f, name: newName.trim() } : f));
+        this.foodList.update(list => list.map(f => f.id === id ? { ...f, name: newName.trim(), image_url: newImageUrl.trim() } : f));
 
         // Note: Supabase will fail if id is not the correct type (number likely), 
         // assuming id is number in real db
         const { data, error } = await this.supabase
             .from('foods')
-            .update({ name: newName.trim() })
+            .update({ name: newName.trim(), image_url: newImageUrl.trim() })
             .eq('id', id)
             .select();
 
@@ -148,20 +169,18 @@ export class FoodService {
         return baseRotation + randomExtra;
     }
 
-    // สุ่มเลือกอาหารจากอาร์เรย์
-    pickRandomFood(): string | null {
-        const currentList = this.foodList();
-        if (currentList.length === 0) {
+    // สุ่มเลือกอาหารจากอาร์เรย์ (ถูกกรองด้วย category ปัจจุบัน)
+    pickRandomFood(): FoodItem | null {
+        const typeList = this.foodList().filter(f => (f.category || 'food') === this.activeCategory());
+
+        if (typeList.length === 0) {
             this.currentResult.set(null);
             return null;
         }
 
-        const randomIndex = Math.floor(Math.random() * currentList.length);
-        const result = currentList[randomIndex].name;
+        const randomIndex = Math.floor(Math.random() * typeList.length);
+        const result = typeList[randomIndex];
         this.currentResult.set(result);
-
-        // Save result to history
-        this.saveHistory(result);
 
         return result;
     }
