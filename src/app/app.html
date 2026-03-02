@@ -96,7 +96,7 @@
     <!-- Mode: Wheel -->
     @if (activeTab() === 'wheel') {
     <div
-      class="relative w-[90vw] max-w-[22rem] sm:max-w-[26rem] aspect-square mt-8 sm:mt-10 mb-4 sm:mb-6 mx-auto flex items-center justify-center">
+      class="relative w-full max-w-[22rem] sm:max-w-[26rem] aspect-square mt-8 sm:mt-10 mb-4 sm:mb-6 mx-auto flex items-center justify-center">
       <!-- Arrow Indicator -->
       <div class="absolute -top-6 z-20 flex items-center justify-center drop-shadow-xl pointer-events-none">
         <svg width="48" height="48" viewBox="0 0 24 24" fill="#ef4444" class="drop-shadow-md">
@@ -134,7 +134,7 @@
     <!-- Mode: Esiimsi -->
     @if (activeTab() === 'esiimsi') {
     <div
-      class="relative w-[95vw] max-w-[24rem] sm:max-w-[30rem] -mt-2 sm:-mt-4 mb-2 sm:mb-6 mx-auto flex flex-col items-center justify-start overflow-visible pb-4">
+      class="relative w-full max-w-[24rem] sm:max-w-[30rem] -mt-2 sm:-mt-4 mb-2 sm:mb-6 mx-auto flex flex-col items-center justify-start overflow-visible pb-4">
 
       <!-- Click Hint -->
       @if (!isShaking() && !showStick()) {
