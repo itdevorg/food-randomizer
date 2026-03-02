@@ -1,6 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FoodService } from './services/food.service';
+import { FoodService, FoodItem } from './services/food.service';
 import confetti from 'canvas-confetti';
 
 @Component({
@@ -16,7 +16,10 @@ export class App {
   foodService = inject(FoodService);
 
   // Tab Navigation State
-  activeTab = signal<'wheel' | 'esiimsi'>('wheel');
+  activeTab = signal<'wheel' | 'esiimsi' | 'admin' | 'history'>('wheel');
+
+  // Admin State
+  editingId = signal<number | string | null>(null);
 
   // Wheel State
   wheelRotation = signal<number>(0);
@@ -60,11 +63,62 @@ export class App {
     return `rotate(${rotate}deg) translate(0, -60px)`;
   }
 
-  setTab(tab: 'wheel' | 'esiimsi') {
+  // Group history by date (YYYY-MM-DD or formatted)
+  groupedHistory = computed(() => {
+    const list = this.foodService.historyList();
+    const groups: { date: string, items: typeof list }[] = [];
+    const map = new Map<string, typeof list>();
+
+    list.forEach(item => {
+      // created_at is likely ISO string "2026-03-02T10:32:09+07:00"
+      const dateObj = new Date(item.created_at);
+      const dateKey = dateObj.toLocaleDateString('th-TH', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+
+      if (!map.has(dateKey)) {
+        map.set(dateKey, []);
+      }
+      map.get(dateKey)!.push(item);
+    });
+
+    map.forEach((items, date) => {
+      groups.push({ date, items });
+    });
+
+    return groups;
+  });
+
+  setTab(tab: 'wheel' | 'esiimsi' | 'admin' | 'history') {
     if (this.isSpinning() || this.isShaking()) return;
     this.activeTab.set(tab);
     this.showModal.set(false);
     this.showStick.set(false);
+  }
+
+  addFood(name: string) {
+    this.foodService.addFood(name);
+  }
+
+  startEdit(id: number | string) {
+    this.editingId.set(id);
+  }
+
+  saveEdit(id: number | string, newName: string) {
+    this.foodService.editFood(id, newName);
+    this.editingId.set(null);
+  }
+
+  cancelEdit() {
+    this.editingId.set(null);
+  }
+
+  deleteFood(id: number | string) {
+    if (confirm('ยืนยันการลบเมนูนี้?')) {
+      this.foodService.deleteFood(id);
+    }
   }
 
   spinWheel() {
