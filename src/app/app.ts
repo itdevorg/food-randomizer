@@ -11,6 +11,8 @@ import confetti from 'canvas-confetti';
   styleUrl: './app.css'
 })
 export class App {
+
+
   foodService = inject(FoodService);
 
   // Tab Navigation State
