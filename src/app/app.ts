@@ -16,7 +16,7 @@ export class App {
   foodService = inject(FoodService);
 
   // Tab Navigation State
-  activeTab = signal<'wheel' | 'esiimsi' | 'admin' | 'history'>('wheel');
+  activeTab = signal<'wheel' | 'esiimsi' | 'dashboard' | 'history' | 'admin'>('wheel');
 
   // Admin State
   editingId = signal<number | string | null>(null);
@@ -100,11 +100,56 @@ export class App {
     return groups;
   });
 
+  // Calculate top randomized items (All-time and By-Month) for the active category
+  dashboardData = computed(() => {
+    const list = this.foodService.historyList().filter(h => (h.category || 'food') === this.foodService.activeCategory());
+
+    const allTimeMap = new Map<string, number>();
+    const byMonthMap = new Map<string, Map<string, number>>();
+
+    list.forEach(item => {
+      const name = item.food_name;
+      allTimeMap.set(name, (allTimeMap.get(name) || 0) + 1);
+
+      const dateObj = new Date(item.created_at);
+      // Format to "เดือน ปี" e.g. "มีนาคม 2569"
+      const monthLabel = dateObj.toLocaleDateString('th-TH', { month: 'long', year: 'numeric' });
+      // Sortable key "YYYY-MM"
+      const sortKey = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
+
+      if (!byMonthMap.has(sortKey)) {
+        byMonthMap.set(sortKey, new Map<string, number>());
+      }
+      const monthData = byMonthMap.get(sortKey)!;
+      monthData.set(name, (monthData.get(name) || 0) + 1);
+    });
+
+    const getTop = (map: Map<string, number>, limit = 5) => {
+      return Array.from(map.entries())
+        .map(([food_name, count]) => ({ food_name, count }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, limit);
+    };
+
+    const allTimeTop = getTop(allTimeMap, 5);
+    const byMonthTop = Array.from(byMonthMap.entries())
+      .map(([sortKey, map]) => {
+        // Find a representative date to get the label back nicely or re-format
+        const [year, month] = sortKey.split('-');
+        const dateObj = new Date(parseInt(year), parseInt(month) - 1, 1);
+        const monthLabel = dateObj.toLocaleDateString('th-TH', { month: 'long', year: 'numeric' });
+        return { monthLabel, sortKey, items: getTop(map, 5) };
+      })
+      .sort((a, b) => b.sortKey.localeCompare(a.sortKey)); // newest month first
+
+    return { allTimeTop, byMonthTop };
+  });
+
   getFoodImage(foodName: string): string | undefined {
     return this.foodService.foodList().find(f => f.name === foodName)?.image_url;
   }
 
-  setTab(tab: 'wheel' | 'esiimsi' | 'admin' | 'history') {
+  setTab(tab: 'wheel' | 'esiimsi' | 'dashboard' | 'admin' | 'history') {
     if (this.isSpinning() || this.isShaking()) return;
     this.activeTab.set(tab);
     this.showModal.set(false);

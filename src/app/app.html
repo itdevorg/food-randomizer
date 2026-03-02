@@ -27,6 +27,17 @@
       class="flex-1 min-w-[5rem] py-3 px-2 sm:px-4 rounded-full text-sm sm:text-base font-medium transition-all duration-300 ease-out focus:outline-none whitespace-nowrap">
       เซียมซี
     </button>
+    <button (click)="setTab('dashboard')" [class.bg-primary]="activeTab() === 'dashboard'"
+      [class.text-white]="activeTab() === 'dashboard'" [class.shadow-sm]="activeTab() === 'dashboard'"
+      [class.text-gray-600]="activeTab() !== 'dashboard'" [class.hover:bg-gray-50]="activeTab() !== 'dashboard'"
+      class="flex-1 min-w-[5rem] py-3 px-2 sm:px-4 rounded-full text-sm sm:text-base font-medium transition-all duration-300 ease-out focus:outline-none flex justify-center items-center gap-1 whitespace-nowrap">
+      <svg class="w-4 h-4 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+        </path>
+      </svg>
+      ยอดฮิต
+    </button>
     <button (click)="setTab('history')" [class.bg-primary]="activeTab() === 'history'"
       [class.text-white]="activeTab() === 'history'" [class.shadow-sm]="activeTab() === 'history'"
       [class.text-gray-600]="activeTab() !== 'history'" [class.hover:bg-gray-50]="activeTab() !== 'history'"
@@ -61,7 +72,7 @@
     <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-primary/10 rounded-full blur-3xl"></div>
 
     <!-- Category Toggle -->
-    <div class="flex justify-center w-full mt-4 mb-2">
+    <div class="flex justify-center w-full mt-0 mb-0 relative z-20">
       <div class="bg-gray-100 p-1 rounded-xl inline-flex shadow-inner border border-gray-200">
         <button (click)="setCategory('food')" [class.bg-white]="foodService.activeCategory() === 'food'"
           [class.shadow]="foodService.activeCategory() === 'food'"
@@ -84,69 +95,46 @@
 
     <!-- Mode: Wheel -->
     @if (activeTab() === 'wheel') {
-    <div class="relative w-[18rem] h-[18rem] sm:w-[22rem] sm:h-[22rem] my-6 flex items-center justify-center">
+    <div
+      class="relative w-[90vw] max-w-[22rem] sm:max-w-[26rem] aspect-square mt-8 sm:mt-10 mb-4 sm:mb-6 mx-auto flex items-center justify-center">
       <!-- Arrow Indicator -->
-      <div class="absolute -top-4 z-20 w-8 h-10 flex flex-col items-center justify-start drop-shadow-md">
-        <div
-          class="w-8 h-8 bg-red-500 rotate-45 transform origin-bottom border-x-4 border-t-4 border-white translate-y-2 rounded-sm shadow-xl">
-        </div>
-        <div class="w-3 h-3 bg-red-600 rounded-full absolute top-[6px] shadow-inner"></div>
+      <div class="absolute -top-6 z-20 flex items-center justify-center drop-shadow-xl pointer-events-none">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="#ef4444" class="drop-shadow-md">
+          <path d="M12 22L2 6h20L12 22z" stroke="white" stroke-width="2" stroke-linejoin="round" />
+        </svg>
       </div>
+
+      <!-- Click Hint -->
+      @if (!isSpinning() && !isHolding()) {
+      <div class="absolute -bottom-8 text-sm text-gray-500 animate-pulse font-medium z-30 pointer-events-none">
+        กดค้างที่วงล้อเพื่อหมุน
+      </div>
+      }
 
       <!-- The Wheel -->
       <div
-        class="w-full h-full rounded-full border-8 border-gray-100 shadow-[inset_0_4px_10px_rgba(0,0,0,0.1),_0_10px_25px_rgba(0,0,0,0.15)] relative overflow-hidden focus:outline-none"
+        class="w-full h-full rounded-full border-8 border-gray-100 shadow-[inset_0_4px_10px_rgba(0,0,0,0.1),_0_10px_25px_rgba(0,0,0,0.15)] relative overflow-hidden focus:outline-none cursor-pointer"
         style="transition-property: transform;" [style.transform]="'rotate(' + wheelRotation() + 'deg)'"
         [style.transition-duration]="isHolding() ? '0s' : (isSpinning() ? '4s' : '0s')"
         [style.transition-timing-function]="isHolding() ? 'linear' : 'cubic-bezier(0.1, 0.9, 0.2, 1)'"
-        [style.background]="wheelGradient()">
+        [style.background]="wheelGradient()" (mousedown)="startSpin($event)" (mouseup)="stopSpin()"
+        (mouseleave)="stopSpin()" (touchstart)="startSpin($event)" (touchend)="stopSpin()" (touchcancel)="stopSpin()">
 
         <!-- Wheel Center Dot -->
         <div
           class="absolute inset-0 m-auto w-12 h-12 bg-white rounded-full shadow-[0_2px_10px_rgba(0,0,0,0.2)] z-10 border-4 border-gray-200">
         </div>
 
-        <!-- Wheel Text Labels (Optional, calculated simplistically) -->
-        @for (food of foodService.foodList(); track $index) {
-        @if ((food.category || 'food') === foodService.activeCategory()) {
-        <div class="absolute inset-0 w-full h-full z-0 pointer-events-none"
-          [style.transform]="'rotate(' + ( (360 / (foodService.foodList() | slice:0).filter(f => (f.category || 'food') === foodService.activeCategory()).length) * (foodService.foodList() | slice:0).filter(f => (f.category || 'food') === foodService.activeCategory()).indexOf(food) + ((360 / (foodService.foodList() | slice:0).filter(f => (f.category || 'food') === foodService.activeCategory()).length) / 2) - 90 ) + 'deg)'">
-          <div class="absolute top-0 bottom-0 right-0 left-1/2 flex items-center justify-start pl-8 sm:pl-10 pr-2">
-            <span
-              class="text-white font-bold drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] text-base sm:text-lg truncate max-w-[110px] sm:max-w-[130px] block leading-tight">
-              {{ food.name }}
-            </span>
-          </div>
-        </div>
-        }
-        }
+        <!-- Wheel Text Labels removed as per user request to clean up dense text -->
       </div>
     </div>
 
-    <button (mousedown)="startSpin($event)" (mouseup)="stopSpin()" (mouseleave)="stopSpin()"
-      (touchstart)="startSpin($event)" (touchend)="stopSpin()" (touchcancel)="stopSpin()"
-      [disabled]="(isSpinning() && !isHolding()) || (foodService.foodList() | slice:0).filter(f => (f.category || 'food') === foodService.activeCategory()).length === 0"
-      class="mt-10 relative overflow-hidden group w-full py-5 bg-primary text-white text-2xl font-bold rounded-2xl shadow-[0_8px_0_#D84315] hover:shadow-[0_4px_0_#D84315] hover:translate-y-1 transition-all active:shadow-none active:translate-y-2 disabled:bg-gray-400 disabled:shadow-[0_8px_0_#9CA3AF] disabled:cursor-not-allowed select-none transition-transform pointer-events-auto">
-      <span class="relative z-10 flex items-center justify-center space-x-2 pointer-events-none">
-        <span>{{ isHolding() ? 'กำลังหมุน... ปล่อยเพื่อหยุด!' : 'กดค้างไว้เพื่อหมุน!' }}</span>
-        <svg *ngIf="isHolding()" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
-          viewBox="0 0 24 24">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor"
-            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-          </path>
-        </svg>
-      </span>
-    </button>
     }
 
     <!-- Mode: Esiimsi -->
     @if (activeTab() === 'esiimsi') {
     <div
-      class="relative w-full h-[18rem] sm:h-[22rem] my-6 flex flex-col items-center justify-end overflow-hidden pb-4">
-
-
-
+      class="relative w-[95vw] max-w-[24rem] sm:max-w-[30rem] -mt-2 sm:-mt-4 mb-2 sm:mb-6 mx-auto flex flex-col items-center justify-start overflow-visible pb-4">
 
       <!-- Click Hint -->
       @if (!isShaking() && !showStick()) {
@@ -157,7 +145,7 @@
 
       <!-- Esiimsi Shake Wrapper -->
       <div
-        class="relative w-[80%] max-w-[18rem] sm:max-w-none sm:w-80 h-auto flex flex-col items-center cursor-pointer transition-transform select-none touch-none drop-shadow-lg"
+        class="relative w-[95%] max-w-[22rem] sm:max-w-none sm:w-[28rem] h-auto flex flex-col items-center cursor-pointer transition-transform select-none touch-none drop-shadow-xl"
         [style.pointer-events]="'auto'" [class.animate-shake]="isShaking()" [class.scale-105]="isHolding()"
         (mousedown)="startShake($event)" (mouseup)="stopShake()" (mouseleave)="stopShake()"
         (touchstart)="startShake($event)" (touchend)="stopShake()" (touchcancel)="stopShake()">
@@ -300,6 +288,91 @@
           </div>
           }
         </div>
+      </div>
+    </div>
+    }
+
+    <!-- Mode: Dashboard -->
+    @if (activeTab() === 'dashboard') {
+    <div class="w-full flex flex-col space-y-6 my-2 z-10 w-full min-h-[16rem] sm:min-h-[20rem]">
+      <div class="flex flex-col gap-4 max-h-[400px] overflow-y-auto w-full pr-1 custom-scrollbar">
+
+        @if (dashboardData().allTimeTop.length === 0) {
+        <div
+          class="text-center text-gray-400 py-6 font-medium bg-gray-50 rounded-xl border border-dashed border-gray-200">
+          ยังไม่มีข้อมูลการสุ่ม<br><span class="text-sm font-normal mt-1 block">ลองไปสุ่มกันก่อนเลย!</span>
+        </div>
+        } @else {
+
+        <!-- All Time Top -->
+        <div class="bg-gradient-to-br from-orange-50 to-red-50 rounded-2xl p-4 border border-orange-100 shadow-sm">
+          <h3 class="text-lg font-bold text-orange-800 mb-3 flex items-center gap-2">
+            🏆 สุ่มได้บ่อยสุด (รวมทั้งหมด)
+          </h3>
+          <div class="flex flex-col gap-2">
+            @for (item of dashboardData().allTimeTop; track item.food_name; let i = $index) {
+            <div class="flex justify-between items-center bg-white p-3 rounded-xl shadow-sm border border-orange-100">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm"
+                  [ngClass]="i === 0 ? 'bg-yellow-400 text-yellow-900' : (i === 1 ? 'bg-gray-300 text-gray-800' : (i === 2 ? 'bg-amber-600 text-amber-100' : 'bg-orange-100 text-orange-800'))">
+                  {{ i + 1 }}
+                </div>
+                <div class="flex items-center gap-2">
+                  @if (getFoodImage(item.food_name)) {
+                  <img [src]="getFoodImage(item.food_name)"
+                    class="w-8 h-8 rounded-md object-cover cursor-pointer hover:opacity-80 transition-opacity"
+                    (click)="previewImageUrl.set(getFoodImage(item.food_name)!)">
+                  }
+                  <span class="font-bold text-gray-800">{{ item.food_name }}</span>
+                </div>
+              </div>
+              <div class="flex items-center gap-1 bg-orange-100 px-3 py-1 rounded-full">
+                <span class="font-bold text-orange-600">{{ item.count }}</span>
+                <span class="text-xs text-orange-500">ครั้ง</span>
+              </div>
+            </div>
+            }
+          </div>
+        </div>
+
+        <!-- By Month -->
+        @for (monthGroup of dashboardData().byMonthTop; track monthGroup.sortKey) {
+        <details class="group bg-white border border-gray-100 p-2 sm:p-3 rounded-2xl shadow-sm"
+          [open]="monthGroup.sortKey === dashboardData().byMonthTop[0].sortKey">
+          <summary class="cursor-pointer list-none flex items-center justify-between outline-none select-none">
+            <h3
+              class="text-sm font-bold text-gray-600 bg-gray-50 px-3 py-1 rounded-md shadow-inner flex items-center gap-2">
+              📅 สถิติประจำ {{ monthGroup.monthLabel }}
+            </h3>
+            <svg class="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform duration-300" fill="none"
+              stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </summary>
+          <div class="flex flex-col gap-2 mt-3 pl-2">
+            @for (item of monthGroup.items; track item.food_name; let i = $index) {
+            <div
+              class="flex justify-between items-center bg-gray-50 border border-transparent hover:border-gray-200 p-2 sm:p-3 rounded-xl transition-colors">
+              <div class="flex items-center gap-3">
+                <div class="text-gray-400 font-bold w-4 text-center">{{ i + 1 }}.</div>
+                <div class="flex items-center gap-2">
+                  @if (getFoodImage(item.food_name)) {
+                  <img [src]="getFoodImage(item.food_name)"
+                    class="w-6 h-6 rounded object-cover cursor-pointer hover:opacity-80 transition-opacity"
+                    (click)="previewImageUrl.set(getFoodImage(item.food_name)!)">
+                  }
+                  <span class="font-semibold text-gray-700 text-sm sm:text-base">{{ item.food_name }}</span>
+                </div>
+              </div>
+              <span class="text-sm font-bold text-primary">{{ item.count }} <span
+                  class="text-xs font-normal text-gray-500">ครั้ง</span></span>
+            </div>
+            }
+          </div>
+        </details>
+        }
+
+        }
       </div>
     </div>
     }
