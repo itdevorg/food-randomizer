@@ -14,23 +14,45 @@
 
   <!-- Tab Navigation -->
   <nav
-    class="flex space-x-1 sm:space-x-2 bg-white p-1 rounded-[2rem] shadow-md border border-gray-100 mb-8 w-full max-w-lg overflow-x-auto custom-scrollbar">
-    <button (click)="setTab('wheel')" [class.bg-primary]="activeTab() === 'wheel'"
-      [class.text-white]="activeTab() === 'wheel'" [class.shadow-sm]="activeTab() === 'wheel'"
-      [class.text-gray-600]="activeTab() !== 'wheel'" [class.hover:bg-gray-50]="activeTab() !== 'wheel'"
-      class="flex-1 min-w-[5rem] py-3 px-2 sm:px-4 rounded-full text-sm sm:text-base font-medium transition-all duration-300 ease-out focus:outline-none whitespace-nowrap">
+    class="sticky top-2 sm:top-4 z-50 flex space-x-1 sm:space-x-2 bg-white/90 backdrop-blur-xl p-2 rounded-full shadow-xl border border-white mb-8 w-full max-w-2xl overflow-x-auto no-scrollbar mx-auto">
+    <button (click)="setTab('mission')" [class.bg-gradient-to-tr]="activeTab() === 'mission'"
+      [class.from-primary]="activeTab() === 'mission'" [class.to-orange-500]="activeTab() === 'mission'"
+      [class.text-white]="activeTab() === 'mission'" [class.shadow-md]="activeTab() === 'mission'"
+      [class.scale-[1.02]]="activeTab() === 'mission'" [class.text-gray-600]="activeTab() !== 'mission'"
+      [class.hover:bg-gray-100]="activeTab() !== 'mission'"
+      class="flex-1 min-w-[5rem] py-3 px-3 sm:px-6 rounded-full text-sm sm:text-base font-bold transition-all duration-300 ease-out focus:outline-none flex justify-center items-center gap-1.5 whitespace-nowrap">
+      🎯 ภารกิจ
+    </button>
+    <button (click)="setTab('wheel')" [class.bg-gradient-to-tr]="activeTab() === 'wheel'"
+      [class.from-primary]="activeTab() === 'wheel'" [class.to-orange-500]="activeTab() === 'wheel'"
+      [class.text-white]="activeTab() === 'wheel'" [class.shadow-md]="activeTab() === 'wheel'"
+      [class.scale-[1.02]]="activeTab() === 'wheel'" [class.text-gray-600]="activeTab() !== 'wheel'"
+      [class.hover:bg-gray-100]="activeTab() !== 'wheel'"
+      class="flex-1 min-w-[5rem] py-3 px-3 sm:px-6 rounded-full text-sm sm:text-base font-bold transition-all duration-300 ease-out focus:outline-none whitespace-nowrap">
       วงล้อ
     </button>
-    <button (click)="setTab('esiimsi')" [class.bg-primary]="activeTab() === 'esiimsi'"
-      [class.text-white]="activeTab() === 'esiimsi'" [class.shadow-sm]="activeTab() === 'esiimsi'"
-      [class.text-gray-600]="activeTab() !== 'esiimsi'" [class.hover:bg-gray-50]="activeTab() !== 'esiimsi'"
-      class="flex-1 min-w-[5rem] py-3 px-2 sm:px-4 rounded-full text-sm sm:text-base font-medium transition-all duration-300 ease-out focus:outline-none whitespace-nowrap">
+    <button (click)="setTab('gacha')" [class.bg-gradient-to-tr]="activeTab() === 'gacha'"
+      [class.from-primary]="activeTab() === 'gacha'" [class.to-orange-500]="activeTab() === 'gacha'"
+      [class.text-white]="activeTab() === 'gacha'" [class.shadow-md]="activeTab() === 'gacha'"
+      [class.scale-[1.02]]="activeTab() === 'gacha'" [class.text-gray-600]="activeTab() !== 'gacha'"
+      [class.hover:bg-gray-100]="activeTab() !== 'gacha'"
+      class="flex-1 min-w-[5rem] py-3 px-3 sm:px-6 rounded-full text-sm sm:text-base font-bold transition-all duration-300 ease-out focus:outline-none flex justify-center items-center gap-1.5 whitespace-nowrap">
+      🎰 กาชา
+    </button>
+    <button (click)="setTab('esiimsi')" [class.bg-gradient-to-tr]="activeTab() === 'esiimsi'"
+      [class.from-primary]="activeTab() === 'esiimsi'" [class.to-orange-500]="activeTab() === 'esiimsi'"
+      [class.text-white]="activeTab() === 'esiimsi'" [class.shadow-md]="activeTab() === 'esiimsi'"
+      [class.scale-[1.02]]="activeTab() === 'esiimsi'" [class.text-gray-600]="activeTab() !== 'esiimsi'"
+      [class.hover:bg-gray-100]="activeTab() !== 'esiimsi'"
+      class="flex-1 min-w-[5rem] py-3 px-3 sm:px-6 rounded-full text-sm sm:text-base font-bold transition-all duration-300 ease-out focus:outline-none whitespace-nowrap">
       เซียมซี
     </button>
-    <button (click)="setTab('dashboard')" [class.bg-primary]="activeTab() === 'dashboard'"
-      [class.text-white]="activeTab() === 'dashboard'" [class.shadow-sm]="activeTab() === 'dashboard'"
-      [class.text-gray-600]="activeTab() !== 'dashboard'" [class.hover:bg-gray-50]="activeTab() !== 'dashboard'"
-      class="flex-1 min-w-[5rem] py-3 px-2 sm:px-4 rounded-full text-sm sm:text-base font-medium transition-all duration-300 ease-out focus:outline-none flex justify-center items-center gap-1 whitespace-nowrap">
+    <button (click)="setTab('dashboard')" [class.bg-gradient-to-tr]="activeTab() === 'dashboard'"
+      [class.from-primary]="activeTab() === 'dashboard'" [class.to-orange-500]="activeTab() === 'dashboard'"
+      [class.text-white]="activeTab() === 'dashboard'" [class.shadow-md]="activeTab() === 'dashboard'"
+      [class.scale-[1.02]]="activeTab() === 'dashboard'" [class.text-gray-600]="activeTab() !== 'dashboard'"
+      [class.hover:bg-gray-100]="activeTab() !== 'dashboard'"
+      class="flex-1 min-w-[5rem] py-3 px-3 sm:px-6 rounded-full text-sm sm:text-base font-bold transition-all duration-300 ease-out focus:outline-none flex justify-center items-center gap-1.5 whitespace-nowrap">
       <svg class="w-4 h-4 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
           d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
@@ -38,20 +60,24 @@
       </svg>
       ยอดฮิต
     </button>
-    <button (click)="setTab('history')" [class.bg-primary]="activeTab() === 'history'"
-      [class.text-white]="activeTab() === 'history'" [class.shadow-sm]="activeTab() === 'history'"
-      [class.text-gray-600]="activeTab() !== 'history'" [class.hover:bg-gray-50]="activeTab() !== 'history'"
-      class="flex-1 min-w-[5rem] py-3 px-2 sm:px-4 rounded-full text-sm sm:text-base font-medium transition-all duration-300 ease-out focus:outline-none flex justify-center items-center gap-1 whitespace-nowrap">
+    <button (click)="setTab('history')" [class.bg-gradient-to-tr]="activeTab() === 'history'"
+      [class.from-primary]="activeTab() === 'history'" [class.to-orange-500]="activeTab() === 'history'"
+      [class.text-white]="activeTab() === 'history'" [class.shadow-md]="activeTab() === 'history'"
+      [class.scale-[1.02]]="activeTab() === 'history'" [class.text-gray-600]="activeTab() !== 'history'"
+      [class.hover:bg-gray-100]="activeTab() !== 'history'"
+      class="flex-1 min-w-[5rem] py-3 px-3 sm:px-6 rounded-full text-sm sm:text-base font-bold transition-all duration-300 ease-out focus:outline-none flex justify-center items-center gap-1.5 whitespace-nowrap">
       <svg class="w-4 h-4 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
           d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
       </svg>
       ประวัติ
     </button>
-    <button (click)="setTab('admin')" [class.bg-primary]="activeTab() === 'admin'"
-      [class.text-white]="activeTab() === 'admin'" [class.shadow-sm]="activeTab() === 'admin'"
-      [class.text-gray-600]="activeTab() !== 'admin'" [class.hover:bg-gray-50]="activeTab() !== 'admin'"
-      class="flex-1 min-w-[5rem] py-3 px-2 sm:px-4 rounded-full text-sm sm:text-base font-medium transition-all duration-300 ease-out focus:outline-none flex justify-center items-center gap-1 whitespace-nowrap">
+    <button (click)="setTab('admin')" [class.bg-gradient-to-tr]="activeTab() === 'admin'"
+      [class.from-primary]="activeTab() === 'admin'" [class.to-orange-500]="activeTab() === 'admin'"
+      [class.text-white]="activeTab() === 'admin'" [class.shadow-md]="activeTab() === 'admin'"
+      [class.scale-[1.02]]="activeTab() === 'admin'" [class.text-gray-600]="activeTab() !== 'admin'"
+      [class.hover:bg-gray-100]="activeTab() !== 'admin'"
+      class="flex-1 min-w-[5rem] py-3 px-3 sm:px-6 rounded-full text-sm sm:text-base font-bold transition-all duration-300 ease-out focus:outline-none flex justify-center items-center gap-1.5 whitespace-nowrap">
       <svg class="w-4 h-4 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
           d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
@@ -191,6 +217,115 @@
     </div>
     }
 
+    <!-- Mode: Gacha -->
+    @if (activeTab() === 'gacha') {
+    <div class="relative w-full mt-4 mb-8 mx-auto flex flex-col items-center justify-center">
+
+      <!-- Gacha Banner Header -->
+      <div
+        class="w-full bg-gradient-to-r from-indigo-900 via-purple-900 to-indigo-900 p-4 sm:p-6 rounded-3xl mb-6 shadow-[0_10px_30px_rgba(0,0,0,0.3)] relative overflow-hidden border border-purple-500/30">
+        <!-- Shine effect -->
+        <div
+          class="absolute top-0 left-[-100%] w-[50%] h-full bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-[-20deg] animate-shine">
+        </div>
+
+        <div class="relative z-10 flex flex-col items-center">
+          <h2
+            class="text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-yellow-100 to-yellow-300 drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] mb-2 uppercase tracking-wider text-center">
+            ✨ ตู้เสบียงแห่งโชคชะตา ✨
+          </h2>
+          <p class="text-indigo-200 text-sm font-medium text-center mb-4">สุ่มรับเมนูอาหาร ลุ้นรับเมนูระดับตำนาน!</p>
+
+          <!-- Drop Rates Panel -->
+          <div class="flex flex-wrap justify-center gap-2 sm:gap-4 w-full">
+            <div
+              class="flex items-center gap-1.5 bg-black/40 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/10 shadow-inner">
+              <span class="w-3 h-3 rounded-full bg-white shadow-[0_0_8px_white]"></span>
+              <span class="text-white text-xs font-medium">ทั่วไป <span class="text-gray-400">70%</span></span>
+            </div>
+            <div
+              class="flex items-center gap-1.5 bg-black/40 backdrop-blur-sm px-3 py-1.5 rounded-full border border-yellow-500/30 shadow-inner">
+              <span class="w-3 h-3 rounded-full bg-yellow-400 shadow-[0_0_8px_yellow]"></span>
+              <span class="text-yellow-400 text-xs font-medium">หายาก <span class="text-yellow-600">20%</span></span>
+            </div>
+            <div
+              class="flex items-center gap-1.5 bg-black/40 backdrop-blur-sm px-3 py-1.5 rounded-full border border-purple-500/30 shadow-inner">
+              <span
+                class="w-3 h-3 rounded-full bg-gradient-to-r from-red-500 via-yellow-500 to-blue-500 shadow-[0_0_8px_rgba(255,255,255,0.8)]"></span>
+              <span
+                class="text-transparent bg-clip-text bg-gradient-to-r from-red-400 via-yellow-400 to-blue-400 text-xs font-bold leading-none py-0.5">ตำนาน
+                <span class="text-purple-400">10%</span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Interactive Card -->
+      <div
+        class="relative w-full max-w-[16rem] sm:max-w-[18rem] aspect-[3/4] rounded-3xl cursor-pointer perspective-1000 select-none group"
+        (click)="startGacha()">
+
+        <div class="w-full h-full absolute transition-all duration-700 preserve-3d"
+          [class.rotate-y-180]="isOpeningGacha() || showModal()" [class.animate-shake]="isOpeningGacha()">
+
+          <!-- Card Front (Back of the actual card, shows before opening) -->
+          <div
+            class="absolute w-full h-full backface-hidden rounded-3xl bg-gradient-to-b from-indigo-800 via-purple-700 to-fuchsia-800 border-[6px] border-indigo-300 shadow-[0_15px_35px_rgba(0,0,0,0.4)] flex flex-col items-center justify-center overflow-hidden transition-transform duration-300 group-hover:scale-105 group-hover:-translate-y-2 group-hover:shadow-[0_25px_45px_rgba(0,0,0,0.5)]">
+
+            <!-- Card Pattern bg -->
+            <div
+              class="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,_white_10%,_transparent_20%)] bg-[length:20px_20px]">
+            </div>
+
+            <!-- Decorative Elements -->
+            <div
+              class="absolute w-40 h-40 border-[8px] border-white/10 rounded-full animate-[spin_10s_linear_infinite]">
+            </div>
+            <div
+              class="absolute w-56 h-56 border-4 border-white/5 rounded-full animate-[spin_15s_linear_infinite_reverse]">
+            </div>
+
+            <div
+              class="w-24 h-24 bg-gradient-to-br from-yellow-300 to-yellow-600 rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(250,204,21,0.6)] mb-4 border-4 border-white/50 z-10 relative">
+              <span class="text-white text-5xl drop-shadow-md">❓</span>
+            </div>
+
+            <div class="bg-black/50 backdrop-blur-md px-6 py-2 rounded-full border border-white/20 z-10">
+              <span
+                class="text-white font-black text-lg sm:text-xl tracking-widest uppercase drop-shadow-sm text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 to-yellow-500">
+                TAP TO OPEN
+              </span>
+            </div>
+          </div>
+
+          <!-- Card Back (Front of the actual card, revealed when opened) -->
+          <div
+            class="absolute w-full h-full backface-hidden rotate-y-180 rounded-3xl bg-white border-[6px] border-gray-200 shadow-[0_15px_35px_rgba(0,0,0,0.4)] flex items-center justify-center">
+            <div class="flex flex-col items-center gap-4">
+              <div class="animate-spin w-16 h-16 border-4 border-primary border-t-transparent rounded-full"></div>
+              <span class="text-primary font-bold animate-pulse">กำลังสุ่ม...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Click Hint -->
+      @if (!isOpeningGacha()) {
+      <div
+        class="mt-8 text-sm text-gray-400 animate-pulse font-medium z-30 pointer-events-none bg-gray-50 px-4 py-2 rounded-full border border-gray-100">
+        👆 แตะที่การ์ดเพื่อสุ่มกาชา 1 ครั้ง
+      </div>
+      }
+
+      @if ((foodService.foodList() | slice:0).filter(f => (f.category || 'food') ===
+      foodService.activeCategory()).length === 0) {
+      <div class="absolute inset-0 bg-white/80 backdrop-blur-sm z-30 flex items-center justify-center rounded-2xl">
+        <span class="text-sm font-bold text-red-500 bg-red-50 px-3 py-1 rounded-lg">ไม่มีรายการในหมวดหมู่นี้</span>
+      </div>
+      }
+    </div>
+    }
+
     <!-- Mode: Admin -->
     @if (activeTab() === 'admin') {
     <div class="w-full flex flex-col space-y-4 my-2 z-10 w-full min-h-[16rem] sm:min-h-[20rem]">
@@ -204,17 +339,35 @@
           <div class="flex gap-2 relative">
             <input type="text" #newImageInput placeholder="ลิงก์รูปภาพ (เว้นว่างได้)"
               class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary shadow-inner bg-gray-50 text-sm"
-              (keyup.enter)="addFood(newFoodInput.value, foodService.activeCategory(), newImageInput.value); newFoodInput.value=''; newImageInput.value=''">
+              (keyup.enter)="addFood(newFoodInput.value, foodService.activeCategory(), newImageInput.value, newRarityInput.value); newFoodInput.value=''; newImageInput.value=''; newRarityInput.value='common'">
+            <select #newRarityInput
+              class="px-3 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary bg-white text-sm shrink-0 shadow-inner min-w-[100px]">
+              <option value="common">⬜ ทั่วไป (70%)</option>
+              <option value="rare">🟨 หายาก (20%)</option>
+              <option value="legendary">🌈 หายากมาก (10%)</option>
+            </select>
             <button
-              (click)="addFood(newFoodInput.value, foodService.activeCategory(), newImageInput.value); newFoodInput.value=''; newImageInput.value=''"
+              (click)="addFood(newFoodInput.value, foodService.activeCategory(), newImageInput.value, newRarityInput.value); newFoodInput.value=''; newImageInput.value=''; newRarityInput.value='common'"
               class="bg-primary hover:bg-orange-600 text-white px-5 py-3 rounded-xl font-bold transition-transform active:scale-95 shadow-md shrink-0">เพิ่ม</button>
           </div>
         </div>
 
+        <!-- Search Bar -->
+        <div class="relative mt-1 mb-1">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <input type="text" [value]="searchQuery()" (input)="searchQuery.set($any($event.target).value)"
+            class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary shadow-inner bg-gray-50 text-sm"
+            placeholder="ค้นหาชื่อเมนู{{foodService.activeCategory() === 'food' ? 'อาหาร' : 'เครื่องดื่ม'}}...">
+        </div>
+
         <!-- List -->
-        <div class="flex flex-col gap-2 max-h-[300px] overflow-y-auto w-full pr-1 custom-scrollbar">
-          @for (food of foodService.foodList(); track food.id) {
-          @if ((food.category || 'food') === foodService.activeCategory()) {
+        <div class="flex flex-col gap-2 max-h-[300px] overflow-y-auto w-full pr-1 no-scrollbar">
+          @for (food of filteredFoodList(); track food.id) {
           <div
             class="flex items-center justify-between bg-white border border-gray-100 p-3 rounded-xl shadow-sm hover:shadow-md transition-shadow">
             @if (editingId() === food.id) {
@@ -223,12 +376,20 @@
                 <input type="text" #editFoodInput [value]="food.name"
                   class="w-full px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-blue-50"
                   (keyup.enter)="editImageInput.focus()">
-                <input type="text" #editImageInput [value]="food.image_url || ''" placeholder="ลิงก์รูปภาพ..."
-                  class="w-full px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-blue-50 text-xs"
-                  (keyup.enter)="saveEdit(food.id, editFoodInput.value, editImageInput.value)">
+                <div class="flex gap-2">
+                  <input type="text" #editImageInput [value]="food.image_url || ''" placeholder="ลิงก์รูปภาพ..."
+                    class="w-full px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-blue-50 text-xs"
+                    (keyup.enter)="saveEdit(food.id, editFoodInput.value, editImageInput.value, editRarityInput.value)">
+                  <select #editRarityInput [value]="food.rarity || 'common'"
+                    class="px-2 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white text-xs shrink-0 max-w-[100px]">
+                    <option value="common">ทั่วไป</option>
+                    <option value="rare">หายาก</option>
+                    <option value="legendary">ตำนาน!</option>
+                  </select>
+                </div>
               </div>
               <div class="flex gap-1 shrink-0 mt-2 sm:mt-0">
-                <button (click)="saveEdit(food.id, editFoodInput.value, editImageInput.value)"
+                <button (click)="saveEdit(food.id, editFoodInput.value, editImageInput.value, editRarityInput.value)"
                   class="p-2 w-10 h-10 flex items-center justify-center text-white bg-green-500 hover:bg-green-600 rounded-lg transition-colors shadow-sm">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
@@ -255,7 +416,18 @@
                 {{ foodService.activeCategory() === 'food' ? '🍽️' : '🥤' }}
               </div>
               }
-              <span class="font-medium text-gray-700 truncate leading-snug">{{ food.name }}</span>
+              <div class="flex flex-col overflow-hidden">
+                <span class="font-medium text-gray-700 truncate leading-snug">{{ food.name }}</span>
+                @if (food.rarity === 'legendary') {
+                <span
+                  class="text-[10px] font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-yellow-500 to-blue-500">🌈
+                  ระดับตำนาน (10%)</span>
+                } @else if (food.rarity === 'rare') {
+                <span class="text-[10px] font-bold text-yellow-600">🟨 ระดับหายาก (20%)</span>
+                } @else {
+                <span class="text-[10px] text-gray-400">⬜ ระดับทั่วไป (70%)</span>
+                }
+              </div>
             </div>
             <div class="flex gap-1 shrink-0">
               <button (click)="startEdit(food.id)"
@@ -278,9 +450,7 @@
             }
           </div>
           }
-          }
-          @if ((foodService.foodList() | slice:0).filter(f => (f.category || 'food') ===
-          foodService.activeCategory()).length === 0) {
+          @if (filteredFoodList().length === 0) {
           <div
             class="text-center text-gray-400 py-6 font-medium bg-gray-50 rounded-xl border border-dashed border-gray-200">
             ไม่มีรายการ{{foodService.activeCategory() === 'food' ? 'อาหาร' : 'เครื่องดื่ม'}}<br><span
@@ -289,6 +459,81 @@
           }
         </div>
       </div>
+    </div>
+    }
+
+    <!-- Mode: Mission -->
+    @if (activeTab() === 'mission') {
+    <div class="w-full flex flex-col space-y-4 my-2 z-10 w-full min-h-[16rem] sm:min-h-[20rem]">
+
+      <!-- Current Goal -->
+      <div
+        class="bg-gradient-to-r from-purple-100 to-indigo-100 p-5 rounded-3xl border border-purple-200 shadow-sm relative overflow-hidden">
+        <div class="absolute -right-4 -top-4 text-7xl opacity-20">🎯</div>
+        <h3 class="text-lg font-black text-indigo-900 mb-2 flex items-center gap-2">
+          ภารกิจกินแหลก (Daily Mission)
+        </h3>
+        <p class="text-indigo-800 font-medium mb-4 relative z-10">{{ foodService.dailyMission() }}</p>
+
+        <div class="flex items-center justify-between bg-white/60 p-3 rounded-2xl relative z-10 backdrop-blur-sm">
+          <span class="font-bold text-gray-700 text-sm">สถานะภารกิจวันนี้:</span>
+          @if (foodService.isMissionCompleted()) {
+          <span
+            class="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-bold inline-flex items-center gap-1 shadow-sm"><svg
+              class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg> สำเร็จแล้ว!</span>
+          } @else {
+          <span
+            class="bg-gray-400 text-white px-3 py-1 rounded-full text-xs font-bold inline-flex items-center gap-1 shadow-sm">รอดำเนินการ...</span>
+          }
+        </div>
+      </div>
+
+      <!-- Streak Tracking -->
+      <div class="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm flex flex-col gap-4">
+        <div class="flex justify-between items-center">
+          <h3 class="text-md font-bold text-gray-800 flex items-center gap-2">
+            🔥 สะสมสถิติ (Streak)
+          </h3>
+          <span class="text-2xl font-black text-orange-500">{{ foodService.streakDays() }} <span
+              class="text-sm font-medium text-gray-400">วัน</span></span>
+        </div>
+
+        <p class="text-xs text-gray-500">สะสมให้ครบ 5 วันอย่างต่อเนื่อง เพื่อปลดล็อก "เมนูลับ"
+          และทำให้วงล้อกลายเป็นสีทอง!</p>
+
+        <!-- Progress Bar -->
+        <div
+          class="w-full bg-gray-100 rounded-full h-4 mt-2 mb-2 relative overflow-hidden shadow-inner flex items-center">
+          <div
+            class="bg-gradient-to-r from-orange-400 to-red-500 h-4 rounded-full transition-all duration-1000 ease-out absolute left-0"
+            [style.width]="'min(100%, ' + ((foodService.streakDays() / 5) * 100) + '%)'"></div>
+        </div>
+
+        <!-- Badges/Days -->
+        <div class="flex justify-between px-1">
+          @for (day of [1,2,3,4,5]; track day) {
+          <div class="flex flex-col items-center gap-1">
+            <div
+              class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-colors delay-100"
+              [ngClass]="{
+                     'bg-green-500 text-white shadow-md': foodService.streakDays() >= day && day < 5,
+                     'bg-gradient-to-r from-yellow-300 to-yellow-500 text-yellow-900 shadow-lg ring-2 ring-yellow-200': foodService.streakDays() >= day && day === 5,
+                     'bg-gray-100 text-gray-400 border border-gray-200': foodService.streakDays() < day && day < 5,
+                     'bg-yellow-50/50 text-yellow-500 border border-yellow-200 border-dashed': foodService.streakDays() < day && day === 5
+                   }">
+              @if (foodService.streakDays() >= day) {
+              @if (day === 5) { 👑 } @else { ✓ }
+              } @else {
+              @if (day === 5) { ❓ } @else { {{ day }} }
+              }
+            </div>
+          </div>
+          }
+        </div>
+      </div>
+
     </div>
     }
 
@@ -454,10 +699,25 @@
     class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-40 flex items-center justify-center p-4 transition-opacity duration-300 ease-out">
     <!-- Modal Content -->
     <div
-      class="bg-white p-6 sm:p-8 rounded-[2rem] shadow-2xl max-w-sm w-full relative z-50 transform scale-100 animate-[pulse_0.4s_ease-out_reverse_1]">
+      class="bg-white p-6 sm:p-8 rounded-[2rem] shadow-2xl max-w-sm w-full relative z-50 transform scale-100 animate-[pulse_0.4s_ease-out_reverse_1]"
+      [ngClass]="{
+        'border-4 border-yellow-400 shadow-[0_0_30px_rgba(250,204,21,0.5)]': gachaRarity() === 'rare',
+        'border-4 border-transparent bg-clip-padding relative': gachaRarity() === 'legendary'
+      }">
+
+      <!-- Legendary Border Hack -->
+      @if (gachaRarity() === 'legendary') {
+      <div
+        class="absolute -inset-1 bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 rounded-[2.2rem] z-[-1] blur-sm animate-[spin_4s_linear_infinite] opacity-70">
+      </div>
+      <div
+        class="absolute -inset-1 bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 rounded-[2.2rem] z-[-1]">
+      </div>
+      <div class="absolute inset-0 bg-white rounded-[2rem] z-[-1]"></div>
+      }
 
       <button (click)="showModal.set(false)"
-        class="absolute top-4 right-5 text-gray-400 hover:text-gray-700 p-2 focus:outline-none">
+        class="absolute top-4 right-5 text-gray-400 hover:text-gray-700 p-2 focus:outline-none z-10">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
         </svg>
@@ -477,8 +737,26 @@
         </div>
         }
 
-        <h2 class="text-3xl sm:text-4xl font-black text-gray-900 mb-1 drop-shadow-sm leading-tight px-2">{{
+        <h2 class="text-3xl sm:text-4xl font-black mb-1 drop-shadow-sm leading-tight px-2" [ngClass]="{
+              'text-yellow-600': gachaRarity() === 'rare',
+              'text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-yellow-500 to-purple-500': gachaRarity() === 'legendary',
+              'text-gray-900': !gachaRarity() || gachaRarity() === 'common'
+            }">{{
           foodService.currentResult()?.name }}</h2>
+
+        <!-- Rarity Badge -->
+        @if (gachaRarity()) {
+        <div class="mt-2 inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider"
+          [ngClass]="{
+                 'bg-gray-100 text-gray-500 border border-gray-200': gachaRarity() === 'common',
+                 'bg-yellow-100 text-yellow-700 border border-yellow-300': gachaRarity() === 'rare',
+                 'bg-gradient-to-r from-red-500 via-green-500 to-blue-500 text-white shadow-[0_0_15px_rgba(255,255,255,0.8)] border border-white': gachaRarity() === 'legendary'
+               }">
+          @if(gachaRarity() === 'legendary') { 🌈 Legendary! }
+          @else if(gachaRarity() === 'rare') { ⭐ Rare }
+          @else { ⚪ Common }
+        </div>
+        }
       </div>
 
       @if (!isResultSaved()) {
