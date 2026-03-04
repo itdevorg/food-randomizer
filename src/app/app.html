@@ -47,6 +47,14 @@
       class="flex-1 min-w-[5rem] py-3 px-3 sm:px-6 rounded-full text-sm sm:text-base font-bold transition-all duration-300 ease-out focus:outline-none whitespace-nowrap">
       เซียมซี
     </button>
+    <button (click)="setTab('nearby')" [class.bg-gradient-to-tr]="activeTab() === 'nearby'"
+      [class.from-primary]="activeTab() === 'nearby'" [class.to-orange-500]="activeTab() === 'nearby'"
+      [class.text-white]="activeTab() === 'nearby'" [class.shadow-md]="activeTab() === 'nearby'"
+      [class.scale-[1.02]]="activeTab() === 'nearby'" [class.text-gray-600]="activeTab() !== 'nearby'"
+      [class.hover:bg-gray-100]="activeTab() !== 'nearby'"
+      class="flex-1 min-w-[5rem] py-3 px-3 sm:px-6 rounded-full text-sm sm:text-base font-bold transition-all duration-300 ease-out focus:outline-none flex justify-center items-center gap-1.5 whitespace-nowrap">
+      📍 ร้านใกล้ฉัน
+    </button>
     <button (click)="setTab('dashboard')" [class.bg-gradient-to-tr]="activeTab() === 'dashboard'"
       [class.from-primary]="activeTab() === 'dashboard'" [class.to-orange-500]="activeTab() === 'dashboard'"
       [class.text-white]="activeTab() === 'dashboard'" [class.shadow-md]="activeTab() === 'dashboard'"
@@ -118,6 +126,105 @@
         </button>
       </div>
     </div>
+
+    <!-- Mode: Nearby (📍 ร้านใกล้ฉัน) -->
+    @if (activeTab() === 'nearby') {
+    <div class="w-full flex flex-col space-y-4 my-6 z-10 min-h-[16rem]">
+
+      <div class="bg-gray-50 border border-gray-100 rounded-2xl p-4 sm:p-5 flex flex-col gap-4 w-full shadow-inner">
+        <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+          <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z">
+            </path>
+          </svg>
+          ค้นหาร้านอาหารจริงรอบตัว
+        </h3>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="flex flex-col gap-1">
+            <label class="text-xs font-bold text-gray-500 uppercase tracking-wider">ระยะทาง</label>
+            <select [value]="nearbyRadius()" (change)="nearbyRadius.set(+$any($event.target).value)"
+              class="px-3 py-2.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary shadow-sm text-sm">
+              <option value="500">500 เมตร</option>
+              <option value="1000">1 กิโลเมตร</option>
+              <option value="2000">2 กิโลเมตร</option>
+              <option value="5000">5 กิโลเมตร</option>
+            </select>
+          </div>
+          <div class="flex flex-col gap-1">
+            <label class="text-xs font-bold text-gray-500 uppercase tracking-wider">ประเภทร้าน</label>
+            <select [value]="nearbyType()" (change)="nearbyType.set($any($event.target).value)"
+              class="px-3 py-2.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary shadow-sm text-sm">
+              <option value="restaurant">อาหารตามสั่ง/ทั่วไป</option>
+              <option value="cafe">คาเฟ่/กาแฟ</option>
+              <option value="bakery">เบเกอรี่</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-3 mt-1">
+          <label
+            class="flex items-center gap-3 cursor-pointer p-3 bg-white border border-gray-100 rounded-xl hover:bg-gray-50 transition-colors">
+            <input type="checkbox" [checked]="nearbyOpenNow()" (change)="nearbyOpenNow.set($any($event.target).checked)"
+              class="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary">
+            <span class="text-sm font-medium text-gray-700">สุ่มเฉพาะร้านที่กำลังเปิดอยู่ (Open Now)</span>
+          </label>
+          <label
+            class="flex items-center gap-3 cursor-pointer p-3 bg-white border border-gray-100 rounded-xl hover:bg-gray-50 transition-colors">
+            <input type="checkbox" [checked]="nearbyMinRating()"
+              (change)="nearbyMinRating.set($any($event.target).checked)"
+              class="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary">
+            <span class="text-sm font-medium text-gray-700">ได้คะแนนรีวิว 4 ดาวขึ้นไปเท่านั้น ⭐</span>
+          </label>
+        </div>
+
+        <button (click)="findNearbyPlaces()" [disabled]="nearbyLoading()"
+          class="mt-2 w-full py-3.5 bg-gray-900 text-white rounded-xl font-bold text-sm hover:bg-black focus:ring-4 focus:ring-gray-200 transition-colors shadow-md flex items-center justify-center gap-2">
+          @if (nearbyLoading()) {
+          <div class="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
+          กำลังค้นหา...
+          } @else {
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+          ดึงข้อมูลร้านแถวนี้
+          }
+        </button>
+
+        @if (nearbyError()) {
+        <div class="text-xs text-red-500 bg-red-50 p-2 rounded-lg border border-red-100 flex items-start gap-1">
+          <span class="shrink-0 mt-0.5">⚠️</span> <span>{{ nearbyError() }}</span>
+        </div>
+        }
+      </div>
+
+      @if (nearbyPlaces().length > 0) {
+      <div
+        class="bg-green-50 border border-green-200 rounded-2xl p-6 flex flex-col items-center justify-center gap-4 text-center mt-2 animate-[fadeIn_0.3s_ease-out]">
+        <div class="flex items-center justify-center w-16 h-16 bg-white rounded-full shadow-sm text-3xl">
+          🎯
+        </div>
+        <div>
+          <h4 class="text-xl font-black text-green-800 mb-1">พบร้านอาหารทั้งหมด {{ nearbyPlaces().length }} ร้าน</h4>
+          <p class="text-sm text-green-600 font-medium">พร้อมแล้วที่จะสุ่มเลือกร้านที่คุณจะได้ไปกิน!</p>
+        </div>
+
+        <button (click)="randomizeNearby()" [disabled]="isOpeningGacha()"
+          class="w-full mt-2 py-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-2xl font-black text-lg hover:from-green-600 hover:to-emerald-700 focus:ring-4 focus:ring-green-200 transition-all shadow-[0_10px_20px_rgba(16,185,129,0.3)] hover:shadow-[0_15px_25px_rgba(16,185,129,0.4)] hover:-translate-y-1 transform flex items-center justify-center gap-2">
+          @if (isOpeningGacha()) {
+          <div class="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
+          กำลังสุ่ม!
+          } @else {
+          🎲 สุ่มเลือกร้านเลย!
+          }
+        </button>
+      </div>
+      }
+    </div>
+    }
 
     <!-- Mode: Wheel -->
     @if (activeTab() === 'wheel') {
@@ -755,6 +862,49 @@
         </svg>
       </button>
 
+      @if (activeTab() === 'nearby' && nearbyResult()) {
+      <div class="text-center mt-2 mb-6 flex flex-col items-center">
+        <p class="text-sm font-semibold text-secondary uppercase tracking-widest mb-4">ร้านที่คุณได้คือ</p>
+
+        @if (nearbyResult().photos && nearbyResult().photos.length > 0) {
+        <img [src]="nearbyResult().photos[0].getUrl({maxWidth: 400, maxHeight: 400})"
+          class="w-32 h-32 sm:w-40 sm:h-40 rounded-3xl object-cover shadow-md border-4 border-gray-50 mb-5 bg-white shrink-0 cursor-pointer hover:scale-105 transition-transform"
+          (click)="previewImageUrl.set(nearbyResult().photos[0].getUrl({maxWidth: 800}))">
+        } @else {
+        <div
+          class="w-32 h-32 sm:w-40 sm:h-40 rounded-3xl bg-gray-50 flex items-center justify-center text-6xl shadow-inner mb-5 border border-gray-100 shrink-0">
+          📍</div>
+        }
+
+        <h2 class="text-2xl sm:text-3xl font-black mb-2 drop-shadow-sm leading-tight px-2 text-gray-900 line-clamp-2">
+          {{ nearbyResult().name }}
+        </h2>
+
+        <div class="flex items-center justify-center gap-3 text-sm font-medium mb-4">
+          @if (nearbyResult().rating) {
+          <span
+            class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full border border-yellow-200 shadow-sm flex items-center gap-1">
+            ⭐ {{ nearbyResult().rating }}
+          </span>
+          }
+          <span
+            class="bg-blue-50 text-blue-700 px-3 py-1 rounded-full border border-blue-100 shadow-sm flex items-center gap-1">
+            🏃 {{ nearbyResult().distanceMeter }} เมตร
+          </span>
+        </div>
+
+        <button (click)="openGoogleMapsNavigate(nearbyResult())"
+          class="w-full py-3.5 bg-blue-600 text-white rounded-xl font-bold text-base hover:bg-blue-700 focus:ring-4 focus:ring-blue-200 transition-colors shadow-lg flex items-center justify-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z">
+            </path>
+          </svg>
+          นำทางไปร้านนี้ (Navigate)
+        </button>
+      </div>
+      } @else {
       <div class="text-center mt-2 mb-6 flex flex-col items-center">
         <p class="text-sm font-semibold text-secondary uppercase tracking-widest mb-4">เมนูของคุณคือ</p>
 
@@ -839,6 +989,7 @@
           ปิดหน้าต่าง
         </button>
       </div>
+      }
       }
     </div>
   </div>

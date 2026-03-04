@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FoodService, FoodItem } from './services/food.service';
 import confetti from 'canvas-confetti';
 
+declare const google: any;
+
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -84,7 +86,18 @@ export class App {
   }
 
   // Tab Navigation State
-  activeTab = signal<'wheel' | 'esiimsi' | 'gacha' | 'dashboard' | 'history' | 'admin' | 'mission'>('mission');
+  activeTab = signal<'wheel' | 'esiimsi' | 'gacha' | 'dashboard' | 'history' | 'admin' | 'mission' | 'nearby'>('mission');
+
+  // Nearby Map State
+  nearbyRadius = signal<number>(1000); // meters
+  nearbyType = signal<string>('restaurant');
+  nearbyOpenNow = signal<boolean>(true);
+  nearbyMinRating = signal<boolean>(false); // >= 4.0
+  nearbyPlaces = signal<any[]>([]);
+  nearbyLoading = signal<boolean>(false);
+  nearbyError = signal<string>('');
+  userLocation = signal<{ lat: number, lng: number } | null>(null);
+  nearbyResult = signal<any>(null); // The final chosen place
 
   // Admin State
   editingId = signal<number | string | null>(null);
@@ -350,7 +363,7 @@ export class App {
     return this.foodService.foodList().find(f => f.name === foodName)?.image_url;
   }
 
-  setTab(tab: 'wheel' | 'esiimsi' | 'gacha' | 'dashboard' | 'admin' | 'history' | 'mission') {
+  setTab(tab: 'wheel' | 'esiimsi' | 'gacha' | 'dashboard' | 'admin' | 'history' | 'mission' | 'nearby') {
     if (this.isSpinning() || this.isShaking() || this.isOpeningGacha()) return;
     this.activeTab.set(tab);
     this.showModal.set(false);
@@ -581,6 +594,15 @@ export class App {
     }
   }
 
+  openGoogleMapsNavigate(place: any) {
+    if (place && place.geometry && place.geometry.location) {
+      const lat = place.geometry.location.lat();
+      const lng = place.geometry.location.lng();
+      const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&destination_place_id=${place.place_id}`;
+      window.open(url, '_blank');
+    }
+  }
+
   shareResult() {
     const food = this.foodService.currentResult();
     if (!food) return;
@@ -592,15 +614,122 @@ export class App {
 
     if (navigator.share) {
       navigator.share({
-        title: 'Food Randomizer - วันนี้กินอะไรดี?',
+        title: 'วันนี้กินอะไรดี?',
         text: message,
         url: url
-      }).catch((error) => console.log('Error sharing', error));
+      }).catch(console.error);
     } else {
-      // Fallback: Copy to clipboard
-      navigator.clipboard.writeText(`${message}\n${url}`).then(() => {
-        alert('คัดลอกข้อความและลิงก์สำหรับแชร์แล้ว! สามารถนำไปวางได้เลยครับ');
-      });
+      navigator.clipboard.writeText(`${message}\n${url}`);
+      alert('คัดลอกข้อความสำหรับแชร์แล้ว!');
     }
+  }
+
+  // --- Nearby Feature Logic ---
+  findNearbyPlaces() {
+    this.nearbyLoading.set(true);
+    this.nearbyError.set('');
+    this.nearbyPlaces.set([]);
+    this.nearbyResult.set(null);
+
+    if (!('geolocation' in navigator)) {
+      this.nearbyError.set('เบราว์เซอร์ของคุณไม่รองรับการระบุตำแหน่ง (Geolocation)');
+      this.nearbyLoading.set(false);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const _loc = { lat: position.coords.latitude, lng: position.coords.longitude };
+        this.userLocation.set(_loc);
+
+        // Check if google maps is loaded
+        if (typeof google === 'undefined' || !google.maps || !google.maps.places) {
+          this.nearbyError.set('เกิดข้อผิดพลาดในการโหลด Google Maps API โปรดตรวจสอบ API Key');
+          this.nearbyLoading.set(false);
+          return;
+        }
+
+        const mapElement = document.createElement('div');
+        const map = new google.maps.Map(mapElement, { center: _loc, zoom: 15 });
+        const service = new google.maps.places.PlacesService(map);
+
+        const request: any = {
+          location: _loc,
+          radius: this.nearbyRadius().toString(),
+          type: this.nearbyType()
+        };
+
+        if (this.nearbyOpenNow()) {
+          request.openNow = true;
+        }
+
+        service.nearbySearch(request, (results: any[], status: string) => {
+          if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+            let filteredResults = results;
+
+            // Filter by rating >= 4.0 if checked
+            if (this.nearbyMinRating()) {
+              filteredResults = results.filter(place => place.rating && place.rating >= 4.0);
+            }
+
+            if (filteredResults.length === 0) {
+              this.nearbyError.set('ไม่พบร้านที่ตรงกับเงื่อนไข ลองขยายระยะทางหรือลดเงื่อนไขคะแนนดูนะ');
+            } else {
+              // Add calculated distance to each place
+              filteredResults.forEach(place => {
+                const dest = { lat: place.geometry.location.lat(), lng: place.geometry.location.lng() };
+                place.distanceMeter = this.calculateDistance(_loc.lat, _loc.lng, dest.lat, dest.lng);
+              });
+              // Sort by distance
+              filteredResults.sort((a, b) => a.distanceMeter - b.distanceMeter);
+              this.nearbyPlaces.set(filteredResults);
+            }
+          } else {
+            this.nearbyError.set('ไม่พบร้านอาหารในบริเวณนี้ หรือเกิดข้อผิดพลาดในการค้นหา');
+          }
+          this.nearbyLoading.set(false);
+        });
+      },
+      (error) => {
+        let msg = 'ไม่สามารถระบุตำแหน่งได้ โปรดอนุญาตการเข้าถึงตำแหน่งของคุณ (Location Services)';
+        if (error.code === error.PERMISSION_DENIED) msg = 'คุณปฏิเสธการเข้าถึงตำแหน่ง โปรดเปิดสิทธิ์ในเบราว์เซอร์';
+        if (error.code === error.POSITION_UNAVAILABLE) msg = 'Location inforamtion unavailable';
+        this.nearbyError.set(msg);
+        this.nearbyLoading.set(false);
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+  }
+
+  // Haversine formula to calculate distance
+  calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+    const R = 6371e3; // metres
+    const φ1 = lat1 * Math.PI / 180;
+    const φ2 = lat2 * Math.PI / 180;
+    const Δφ = (lat2 - lat1) * Math.PI / 180;
+    const Δλ = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+      Math.cos(φ1) * Math.cos(φ2) *
+      Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return Math.round(R * c);
+  }
+
+  randomizeNearby() {
+    const places = this.nearbyPlaces();
+    if (places.length === 0) return;
+
+    this.isOpeningGacha.set(true);
+    this.playMagicSound();
+
+    // Simulate thinking/picking time
+    setTimeout(() => {
+      this.isOpeningGacha.set(false);
+      const randomIndex = Math.floor(Math.random() * places.length);
+      const pickedPlace = places[randomIndex];
+      this.nearbyResult.set(pickedPlace);
+      this.showModal.set(true);
+      this.triggerConfetti();
+    }, 2000);
   }
 }
