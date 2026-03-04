@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1772613506354,
+  "timestamp": 1772613815194,
   "index": "/food-randomizer/index.html",
   "assetGroups": [
     {
@@ -13,7 +13,7 @@
       "urls": [
         "/food-randomizer/favicon.ico",
         "/food-randomizer/index.html",
-        "/food-randomizer/main-OJ3C575O.js",
+        "/food-randomizer/main-DMCIRPS6.js",
         "/food-randomizer/manifest.webmanifest",
         "/food-randomizer/styles-JWSYOJHU.css"
       ],
@@ -36,8 +36,8 @@
   "hashTable": {
     "/food-randomizer/esiimsi.png": "bb21b3be2b25dbf592f9b643b063faa42815c370",
     "/food-randomizer/favicon.ico": "46e96f13e86bbd4309f2e741dc15591820134bbb",
-    "/food-randomizer/index.html": "e2945509e3669218ad0a743adce5dbb83d6b2f95",
-    "/food-randomizer/main-OJ3C575O.js": "28e553b9a103c2f8ac8cbbfdfd045cbde5aad70a",
+    "/food-randomizer/index.html": "b7664ed0e47d293c14e31c42f2e6327bcc2f347a",
+    "/food-randomizer/main-DMCIRPS6.js": "60dcc877bf94929753b3dbd81d0eb9d5c97622c6",
     "/food-randomizer/manifest.webmanifest": "aa78c2c2ea59689d0b0c02d3cb92e8acb8f05afc",
     "/food-randomizer/styles-JWSYOJHU.css": "f6a287b3228595e6efd08f371a4d227a4c7deac0"
   },
