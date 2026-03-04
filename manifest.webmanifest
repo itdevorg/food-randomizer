@@ -1,6 +1,8 @@
 {
-  "name": "what-to-eat",
-  "short_name": "what-to-eat",
+  "name": "What To Eat - Food Randomizer",
+  "short_name": "WhatToEat",
+  "theme_color": "#FF5722",
+  "background_color": "#F9FAFB",
   "display": "standalone",
   "scope": "./",
   "start_url": "./",
