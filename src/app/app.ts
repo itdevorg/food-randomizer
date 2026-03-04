@@ -2,6 +2,7 @@ import { Component, computed, inject, signal, HostListener } from '@angular/core
 import { CommonModule } from '@angular/common';
 import { FoodService, FoodItem } from './services/food.service';
 import confetti from 'canvas-confetti';
+import { environment } from '../environments/environment';
 
 declare const google: any;
 
@@ -642,55 +643,32 @@ export class App {
         const _loc = { lat: position.coords.latitude, lng: position.coords.longitude };
         this.userLocation.set(_loc);
 
-        // Check if google maps is loaded
+        // Lazy load the Google Maps API script if it's not present
         if (typeof google === 'undefined' || !google.maps || !google.maps.places) {
-          this.nearbyError.set('เกิดข้อผิดพลาดในการโหลด Google Maps API โปรดตรวจสอบ API Key');
-          this.nearbyLoading.set(false);
-          return;
-        }
-
-        const mapElement = document.createElement('div');
-        const map = new google.maps.Map(mapElement, { center: _loc, zoom: 15 });
-        const service = new google.maps.places.PlacesService(map);
-
-        const request: any = {
-          location: _loc,
-          radius: this.nearbyRadius().toString(),
-          type: this.nearbyType()
-        };
-
-        if (this.nearbyOpenNow()) {
-          request.openNow = true;
-        }
-
-        service.nearbySearch(request, (results: any[], status: string) => {
-          if (status === google.maps.places.PlacesServiceStatus.OK && results) {
-            let filteredResults = results;
-
-            // Filter by rating >= 4.0 if checked
-            if (this.nearbyMinRating()) {
-              filteredResults = results.filter(place => place.rating && place.rating >= 4.0);
-            }
-
-            if (filteredResults.length === 0) {
-              this.nearbyError.set('ไม่พบร้านที่ตรงกับเงื่อนไข ลองขยายระยะทางหรือลดเงื่อนไขคะแนนดูนะ');
-            } else {
-              // Add calculated distance to each place
-              filteredResults.forEach(place => {
-                const dest = { lat: place.geometry.location.lat(), lng: place.geometry.location.lng() };
-                place.distanceMeter = this.calculateDistance(_loc.lat, _loc.lng, dest.lat, dest.lng);
-              });
-              // Sort by distance
-              filteredResults.sort((a, b) => a.distanceMeter - b.distanceMeter);
-              this.nearbyPlaces.set(filteredResults);
-            }
+          const scriptId = 'google-maps-script';
+          if (!document.getElementById(scriptId)) {
+            const script = document.createElement('script');
+            script.id = scriptId;
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${environment.googleMapsApiKey}&libraries=places`;
+            script.async = true;
+            script.defer = true;
+            script.onload = () => this.executeNearbySearch(_loc);
+            script.onerror = () => {
+              this.nearbyError.set('เกิดข้อผิดพลาดในการโหลดเครือข่าย Google Maps API');
+              this.nearbyLoading.set(false);
+            };
+            document.head.appendChild(script);
+            return;
           } else {
-            this.nearbyError.set('ไม่พบร้านอาหารในบริเวณนี้ หรือเกิดข้อผิดพลาดในการค้นหา');
+            // Script is already in the document but maybe not loaded yet, wait a bit
+            setTimeout(() => this.executeNearbySearch(_loc), 1000);
+            return;
           }
-          this.nearbyLoading.set(false);
-        });
+        } else {
+          this.executeNearbySearch(_loc);
+        }
       },
-      (error) => {
+      (error: any) => {
         let msg = 'ไม่สามารถระบุตำแหน่งได้ โปรดอนุญาตการเข้าถึงตำแหน่งของคุณ (Location Services)';
         if (error.code === error.PERMISSION_DENIED) msg = 'คุณปฏิเสธการเข้าถึงตำแหน่ง โปรดเปิดสิทธิ์ในเบราว์เซอร์';
         if (error.code === error.POSITION_UNAVAILABLE) msg = 'Location inforamtion unavailable';
@@ -699,6 +677,49 @@ export class App {
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
+  }
+
+  private executeNearbySearch(_loc: { lat: number, lng: number }) {
+    const mapElement = document.createElement('div');
+    const map = new google.maps.Map(mapElement, { center: _loc, zoom: 15 });
+    const service = new google.maps.places.PlacesService(map);
+
+    const request: any = {
+      location: _loc,
+      radius: this.nearbyRadius().toString(),
+      type: this.nearbyType()
+    };
+
+    if (this.nearbyOpenNow()) {
+      request.openNow = true;
+    }
+
+    service.nearbySearch(request, (results: any[], status: string) => {
+      if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+        let filteredResults = results;
+
+        // Filter by rating >= 4.0 if checked
+        if (this.nearbyMinRating()) {
+          filteredResults = results.filter(place => place.rating && place.rating >= 4.0);
+        }
+
+        if (filteredResults.length === 0) {
+          this.nearbyError.set('ไม่พบร้านที่ตรงกับเงื่อนไข ลองขยายระยะทางหรือลดเงื่อนไขคะแนนดูนะ');
+        } else {
+          // Add calculated distance to each place
+          filteredResults.forEach(place => {
+            const dest = { lat: place.geometry.location.lat(), lng: place.geometry.location.lng() };
+            place.distanceMeter = this.calculateDistance(_loc.lat, _loc.lng, dest.lat, dest.lng);
+          });
+          // Sort by distance
+          filteredResults.sort((a, b) => a.distanceMeter - b.distanceMeter);
+          this.nearbyPlaces.set(filteredResults);
+        }
+      } else {
+        this.nearbyError.set('ไม่พบร้านอาหารในบริเวณนี้ หรือเกิดข้อผิดพลาดในการค้นหา');
+      }
+      this.nearbyLoading.set(false);
+    });
   }
 
   // Haversine formula to calculate distance
