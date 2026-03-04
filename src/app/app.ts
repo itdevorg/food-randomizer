@@ -111,6 +111,10 @@ export class App {
   isOpeningGacha = signal<boolean>(false);
   gachaRarity = signal<'common' | 'rare' | 'legendary' | null>(null);
 
+  // Visual Animation State
+  fastSwitchingFood = signal<FoodItem | null>(null);
+  fastSwitchIntervalId: any = null;
+
   // Modal State
   showModal = signal<boolean>(false);
   isResultSaved = signal<boolean>(false);
@@ -395,6 +399,24 @@ export class App {
     }
   }
 
+  startFastSwitching() {
+    this.stopFastSwitching();
+    const list = this.foodService.foodList().filter(f => (f.category || 'food') === this.foodService.activeCategory());
+    if (list.length === 0) return;
+    this.fastSwitchIntervalId = setInterval(() => {
+      const randomFood = list[Math.floor(Math.random() * list.length)];
+      this.fastSwitchingFood.set(randomFood);
+    }, 80);
+  }
+
+  stopFastSwitching() {
+    if (this.fastSwitchIntervalId) {
+      clearInterval(this.fastSwitchIntervalId);
+      this.fastSwitchIntervalId = null;
+    }
+    this.fastSwitchingFood.set(null);
+  }
+
   startSpin(e?: Event) {
     if (e && e.cancelable) e.preventDefault();
     const typeList = this.foodService.foodList().filter(f => (f.category || 'food') === this.foodService.activeCategory());
@@ -404,6 +426,7 @@ export class App {
     this.isHolding.set(true);
     this.showModal.set(false);
     this.isResultSaved.set(false);
+    this.startFastSwitching();
 
     this.lastTime = performance.now();
     let lastTickAngle = this.wheelRotation();
@@ -441,6 +464,7 @@ export class App {
 
     // Wait for spin animation (4s) to finish
     setTimeout(() => {
+      this.stopFastSwitching();
       this.isSpinning.set(false);
       this.showModal.set(true);
       this.triggerConfetti();
@@ -458,6 +482,7 @@ export class App {
     this.showModal.set(false);
     this.isResultSaved.set(false);
     this.startShakeSoundLoop();
+    this.startFastSwitching();
   }
 
   stopShake() {
@@ -467,6 +492,7 @@ export class App {
 
     // Let it shake a fraction longer
     setTimeout(() => {
+      this.stopFastSwitching();
       this.isShaking.set(false);
       this.foodService.pickRandomFood();
       this.showStick.set(true);
@@ -512,6 +538,7 @@ export class App {
     this.showModal.set(false);
     this.isResultSaved.set(false);
     this.gachaRarity.set(null);
+    this.startFastSwitching();
 
     this.playMagicSound();
 
@@ -525,6 +552,7 @@ export class App {
   }
 
   openGacha() {
+    this.stopFastSwitching();
     this.isOpeningGacha.set(false);
     const result = this.foodService.pickGachaFood();
 
@@ -550,6 +578,29 @@ export class App {
     if (food) {
       const query = encodeURIComponent(`ร้าน ${food.name} ใกล้ฉัน`);
       window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
+    }
+  }
+
+  shareResult() {
+    const food = this.foodService.currentResult();
+    if (!food) return;
+
+    const emoji = this.foodService.activeCategory() === 'food' ? '🍽️' : '🥤';
+    const rarityText = food.rarity === 'legendary' ? ' 🌈 ระดับตำนาน!' : (food.rarity === 'rare' ? ' ⭐ ระดับหายาก!' : '');
+    const message = `วันนี้ฉันสุ่มได้ "${food.name}"${rarityText} ${emoji}\nแล้วคุณล่ะ วันนี้กินอะไรดี? มาสุ่มกันเถอะ!`;
+    const url = window.location.href;
+
+    if (navigator.share) {
+      navigator.share({
+        title: 'Food Randomizer - วันนี้กินอะไรดี?',
+        text: message,
+        url: url
+      }).catch((error) => console.log('Error sharing', error));
+    } else {
+      // Fallback: Copy to clipboard
+      navigator.clipboard.writeText(`${message}\n${url}`).then(() => {
+        alert('คัดลอกข้อความและลิงก์สำหรับแชร์แล้ว! สามารถนำไปวางได้เลยครับ');
+      });
     }
   }
 }

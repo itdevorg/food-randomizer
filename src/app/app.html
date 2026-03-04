@@ -206,6 +206,20 @@
         <img src="./esiimsi.png" alt="กระบอกเซียมซี" draggable="false"
           class="relative w-full h-auto object-contain z-10 pointer-events-none" />
 
+        <!-- Fast Switching Overlay -->
+        @if (isShaking() && fastSwitchingFood()) {
+        <div
+          class="absolute top-[40%] left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-20 h-20 sm:w-24 sm:h-24 bg-white/90 rounded-full shadow-lg flex flex-col items-center justify-center p-2 border-2 border-amber-500 overflow-hidden pointer-events-none">
+          @if (fastSwitchingFood()?.image_url) {
+          <img [src]="fastSwitchingFood()?.image_url"
+            class="absolute inset-0 w-full h-full object-cover opacity-30 mix-blend-multiply">
+          }
+          <span
+            class="text-[10px] sm:text-xs font-bold text-center text-amber-900 relative z-10 break-words drop-shadow-md leading-tight">{{
+            fastSwitchingFood()?.name }}</span>
+        </div>
+        }
+
       </div>
 
       @if ((foodService.foodList() | slice:0).filter(f => (f.category || 'food') ===
@@ -300,11 +314,29 @@
 
           <!-- Card Back (Front of the actual card, revealed when opened) -->
           <div
-            class="absolute w-full h-full backface-hidden rotate-y-180 rounded-3xl bg-white border-[6px] border-gray-200 shadow-[0_15px_35px_rgba(0,0,0,0.4)] flex items-center justify-center">
+            class="absolute w-full h-full backface-hidden rotate-y-180 rounded-3xl bg-white border-[6px] border-gray-200 shadow-[0_15px_35px_rgba(0,0,0,0.4)] flex items-center justify-center overflow-hidden">
+
+            @if (isOpeningGacha() && fastSwitchingFood()) {
+            <div class="absolute inset-0 w-full h-full opacity-40 z-0 flex items-center justify-center bg-gray-100">
+              @if (fastSwitchingFood()?.image_url) {
+              <img [src]="fastSwitchingFood()?.image_url"
+                class="w-full h-full object-cover transition-opacity duration-[50ms]">
+              } @else {
+              <span class="text-6xl blur-sm">{{ fastSwitchingFood()?.category === 'food' ? '🍽️' : '🥤' }}</span>
+              }
+            </div>
+            <div
+              class="z-10 flex flex-col items-center gap-2 bg-white/90 backdrop-blur-md px-6 py-4 rounded-2xl shadow-lg border border-gray-100 max-w-[85%] text-center">
+              <div class="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full"></div>
+              <span class="text-primary font-bold text-sm line-clamp-2 leading-tight">{{ fastSwitchingFood()?.name
+                }}</span>
+            </div>
+            } @else {
             <div class="flex flex-col items-center gap-4">
               <div class="animate-spin w-16 h-16 border-4 border-primary border-t-transparent rounded-full"></div>
               <span class="text-primary font-bold animate-pulse">กำลังสุ่ม...</span>
             </div>
+            }
           </div>
         </div>
       </div>
@@ -792,6 +824,15 @@
             </path>
           </svg>
           หาร้านใกล้ฉันบน Map
+        </button>
+        <button (click)="shareResult()"
+          class="w-full py-3 sm:py-4 bg-blue-600 text-white rounded-xl font-bold text-sm sm:text-base hover:bg-blue-700 focus:ring-4 focus:ring-blue-200 transition-colors shadow-lg flex items-center justify-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z">
+            </path>
+          </svg>
+          แชร์ให้เพื่อนดู
         </button>
         <button (click)="showModal.set(false)"
           class="w-full py-3 sm:py-4 bg-gray-100 text-gray-700 rounded-xl font-bold text-sm sm:text-base hover:bg-gray-200 transition-colors">

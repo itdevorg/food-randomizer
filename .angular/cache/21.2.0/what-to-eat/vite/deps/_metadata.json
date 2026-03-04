@@ -1,55 +1,61 @@
 {
-  "hash": "b2ecb065",
-  "configHash": "74b7ed6a",
-  "lockfileHash": "62c88350",
-  "browserHash": "c5e589e6",
+  "hash": "aac3cce4",
+  "configHash": "5178c2c9",
+  "lockfileHash": "b663e2f7",
+  "browserHash": "8e4e8aba",
   "optimized": {
     "@angular/common": {
       "src": "../../../../../../node_modules/@angular/common/fesm2022/common.mjs",
       "file": "@angular_common.js",
-      "fileHash": "0eb2bd1c",
+      "fileHash": "a4392255",
       "needsInterop": false
     },
     "@angular/core": {
       "src": "../../../../../../node_modules/@angular/core/fesm2022/core.mjs",
       "file": "@angular_core.js",
-      "fileHash": "c5cda389",
+      "fileHash": "63625b3a",
       "needsInterop": false
     },
     "@angular/platform-browser": {
       "src": "../../../../../../node_modules/@angular/platform-browser/fesm2022/platform-browser.mjs",
       "file": "@angular_platform-browser.js",
-      "fileHash": "875b0bd3",
+      "fileHash": "8cdb617e",
       "needsInterop": false
     },
     "@angular/router": {
       "src": "../../../../../../node_modules/@angular/router/fesm2022/router.mjs",
       "file": "@angular_router.js",
-      "fileHash": "63c4f3d4",
+      "fileHash": "79129fe7",
+      "needsInterop": false
+    },
+    "@angular/service-worker": {
+      "src": "../../../../../../node_modules/@angular/service-worker/fesm2022/service-worker.mjs",
+      "file": "@angular_service-worker.js",
+      "fileHash": "a4242f8f",
       "needsInterop": false
     },
     "@supabase/supabase-js": {
       "src": "../../../../../../node_modules/@supabase/supabase-js/dist/index.mjs",
       "file": "@supabase_supabase-js.js",
-      "fileHash": "134447f5",
+      "fileHash": "2a8f4b3c",
       "needsInterop": false
     },
     "canvas-confetti": {
       "src": "../../../../../../node_modules/canvas-confetti/dist/confetti.module.mjs",
       "file": "canvas-confetti.js",
-      "fileHash": "be1f22e0",
+      "fileHash": "a4a6989d",
       "needsInterop": false
     }
   },
   "chunks": {
-    "chunk-R62E72UO": {
-      "file": "chunk-R62E72UO.js"
+    "chunk-Z2WOMKHK": {
+      "file": "chunk-Z2WOMKHK.js"
     },
-    "chunk-VT5GVVOO": {
-      "file": "chunk-VT5GVVOO.js"
+    "chunk-FL2IE4R7": {
+      "file": "chunk-FL2IE4R7.js"
     },
-    "chunk-O6MOAATT": {
-      "file": "chunk-O6MOAATT.js"
+    "chunk-5DNLLGHH": {
+      "file": "chunk-5DNLLGHH.js"
     },
     "chunk-B2KI3AIV": {
       "file": "chunk-B2KI3AIV.js"
